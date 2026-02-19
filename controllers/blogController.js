@@ -53,7 +53,7 @@ function show(req, res) {
             post.tags = tagsResults;
             res.json(post);
         })
-        
+
 
     });
 
@@ -61,16 +61,16 @@ function show(req, res) {
 //CREATE
 function store(req, res) {
 
-     //recuperiamo i dati dal corpo della richiesta
-    const { title,content,image } = req.body;
+    //recuperiamo i dati dal corpo della richiesta
+    const { title, content, image } = req.body;
 
     //preparo la query 
     const sql = ' INSERT INTO posts (title,content,image) VALUES (?,?,?) ';
-    
+
     //eseguo la query 
     connection.query(
         sql,
-        [title,content, image],
+        [title, content, image],
         (err, results) => {
             if (err) return res.status(500).json({ error: 'Failed to insert pizza' });
             res.status(201); // status corretto
@@ -78,7 +78,7 @@ function store(req, res) {
             res.json({ id: results.insertId }); // restituiamo l'id assegnato dal DB
         }
     );
-    
+
 }
 
 //modifica totale PUT 
@@ -86,34 +86,19 @@ function update(req, res) {
 
 
     //recupero l'id e lo trasformo in numero ( il parametro dinamico)
-    const idNum = parseInt(req.params.id)
+    const id  = parseInt(req.params.id)
 
-    //cerco il post tramite id
-    const post = postsArr.find(blog => blog.id === idNum);
+    //recuperiamo i dati dal corpo della richiesta
+    const { title, content, image } = req.body;
 
-    //controllo se trova l'item
-    if (!post) {
+    //preparo la quert 
+    const sql = 'UPDATE posts SET title = ? , content = ? ,image = ? WHERE id = ?';
 
-        res.status(404);
-
-        //risposta con messaggio di eerrore
-        return res.json({
-            error: "Not found",
-            message: "Post non trovato"
-        })
-    }
-
-    //aggiorniamo il post 
-    post.title = req.body.title;
-    post.content = req.body.content;
-    post.image = req.body.image;
-    post.tags = req.body.tags;
-
-    //controlliamo il post
-    console.log(postsArr);
-
-    //restituisamo il post aggiornato
-    res.json(post);
+    //eseguo la query 
+    connection.query(sql,[title,content,image,id], (err) => {
+        if (err) return res.status(500).json({ error: 'Failed to update post' });
+            res.json({ message: 'post updated successfully' });
+    })
 
 }
 

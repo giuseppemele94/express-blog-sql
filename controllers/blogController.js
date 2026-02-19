@@ -23,8 +23,16 @@ function show(req, res) {
     //recupero l'id e lo trasformo in numero ( il parametro dinamico)
     const id = parseInt(req.params.id)
 
+
     //query
     const sql = 'SELECT * FROM posts WHERE id = ?';
+
+    //query per i tags nello show del post 
+    const tagsSql = `SELECT tags.label
+    FROM posts 
+    JOIN post_tag ON posts.id = post_tag.post_id 
+    JOIN tags ON post_tag.tag_id = tags.id
+    WHERE posts.id = ? `;
 
     //eseguo la query
     connection.query(sql, [id], (err, results) => {
@@ -32,8 +40,20 @@ function show(req, res) {
         if (results.length === 0)
             return res.status(404).json({
                 error: 'Post not found'
-            })
-        res.json(results);
+            });
+
+        //recuppero il post
+        const post = results[0];
+
+        //faccio partire la seconda query se la prima ha avuto successp
+        connection.query(tagsSql, [id], (err, tagsResults) => {
+            if (err) return res.status(500).json({ error: 'Database query failed' });
+
+            //aggiungo i tags al post 
+            post.tags = tagsResults;
+            res.json(post);
+        })
+        
 
     });
 

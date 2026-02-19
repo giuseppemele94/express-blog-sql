@@ -61,28 +61,24 @@ function show(req, res) {
 //CREATE
 function store(req, res) {
 
-    //const newId = Date.now();
-    //creo un id 
-    const newId = postsArr[postsArr.length - 1].id + 1;
+     //recuperiamo i dati dal corpo della richiesta
+    const { title,content,image } = req.body;
 
-    //creiamo nuovo oggetto post
-    const newPost = {
-        id: newId,
-        title: req.body.title,
-        content: req.body.content,
-        image: req.body.image,
-        tags: req.body.tags
-    }
-
-    //aggiungo il nuovo post al blog
-    postsArr.push(newPost);
-
-    console.log(postsArr);
-
-    //restituisco stato created e il nuovo post
-    res.status(201);
-    res.json(newPost);
-
+    //preparo la query 
+    const sql = ' INSERT INTO posts (title,content,image) VALUES (?,?,?) ';
+    
+    //eseguo la query 
+    connection.query(
+        sql,
+        [title,content, image],
+        (err, results) => {
+            if (err) return res.status(500).json({ error: 'Failed to insert pizza' });
+            res.status(201); // status corretto
+            console.log(results)
+            res.json({ id: results.insertId }); // restituiamo l'id assegnato dal DB
+        }
+    );
+    
 }
 
 //modifica totale PUT 

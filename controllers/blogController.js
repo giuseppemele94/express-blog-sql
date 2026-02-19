@@ -21,28 +21,22 @@ function index(req, res) {
 function show(req, res) {
 
     //recupero l'id e lo trasformo in numero ( il parametro dinamico)
-    const idNum = parseInt(req.params.id)
+    const id = parseInt(req.params.id)
 
-    // introduciamo un errore a caso per test middelware err 500
-    // throw new Error("Errore di test middleware");
+    //query
+    const sql = 'SELECT * FROM posts WHERE id = ?';
 
-    //cerco il post tramite id
-    const post = postsArr.find(blog => blog.id === idNum);
+    //eseguo la query
+    connection.query(sql, [id], (err, results) => {
+        if (err) return res.status(500).json({ error: 'Database query failed' });
+        if (results.length === 0)
+            return res.status(404).json({
+                error: 'Post not found'
+            })
+        res.json(results);
 
-    //controllo se trova l'item
-    if (!post) {
+    });
 
-        res.status(404);
-
-        //risposta con messaggio di eerrore
-        return res.json({
-            error: "Not found",
-            message: "Post non trovato"
-        })
-    }
-
-    //restituisco sotto forma di JSON 
-    res.json(post)
 }
 //CREATE
 function store(req, res) {
@@ -162,7 +156,7 @@ function destroy(req, res) {
     const sql = 'DELETE FROM posts WHERE id = ?';
 
     //elimino il post dal db
-    connection.query(sql, [id] , (err) => {
+    connection.query(sql, [id], (err) => {
         if (err)
             return res.status(500).json({
                 error: 'Failed to delete post'

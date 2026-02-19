@@ -1,6 +1,8 @@
 // importo i dati dei post
 const postsArr = require('./../data/postsArr');
 
+// Importiamo il file di connessione al database
+const connection = require('./../data/db');
 
 
 function index(req, res) {

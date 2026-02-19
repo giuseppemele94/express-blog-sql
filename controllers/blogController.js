@@ -14,7 +14,7 @@ function index(req, res) {
     connection.query(sql, (err, results) => {
         if (err) return res.status(500).json({ error: 'Database query failed' });
         res.json(results);
-       // console.log(results);
+        // console.log(results);
     });
 }
 
@@ -157,27 +157,18 @@ function modify(req, res) {
 function destroy(req, res) {
 
     //recupero l'id e lo trasformo in numero
-    const idNum = parseInt(req.params.id);
+    const id = parseInt(req.params.id);
 
-    //cerco il post tramite id
-    const post = postsArr.find(blog => blog.id === idNum)
+    const sql = 'DELETE FROM posts WHERE id = ?';
 
-    //controllo se trova l'item
-    if (!post) {
-
-        res.status(404);
-
-        //risposta con messaggio di eerrore
-        return res.json({
-            error: "Not found",
-            message: "Post non trovato"
-        })
-    }
-    //rimuovo il post dal blog 
-    postsArr.splice(postsArr.indexOf(post), 1);
-
-    //risposta 
-    res.sendStatus(204);
+    //elimino il post dal db
+    connection.query(sql, [id] , (err) => {
+        if (err)
+            return res.status(500).json({
+                error: 'Failed to delete post'
+            })
+        res.sendStatus(204)
+    });
 
 }
 

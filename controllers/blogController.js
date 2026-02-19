@@ -1,5 +1,5 @@
 // importo i dati dei post
-const postsArr = require('./../data/postsArr');
+//const postsArr = require('./../data/postsArr');
 
 // Importiamo il file di connessione al database
 const connection = require('./../data/db');
@@ -7,22 +7,15 @@ const connection = require('./../data/db');
 
 function index(req, res) {
 
-    //inizialmente, il blog filtrato corrisponde a quello originale
-    let filteredPost = postsArr;
+    //query
+    const sql = 'SELECT * FROM posts';
 
-    //se la richiesta contiene un filtro, allora filtro l'array
-    if (req.query.tags) {
-        filteredPost = postsArr.filter(
-            blog => blog.tags.includes(req.query.tags)
-        );
-    }
-
-    //creo un nuovo oggetto con le propr che mi servono
-    const oggettoBlog = {
-        numeroPost: postsArr.length,
-        listaPost: filteredPost
-    }
-    res.json(oggettoBlog);
+    //eseguo la query
+    connection.query(sql, (err, results) => {
+        if (err) return res.status(500).json({ error: 'Database query failed' });
+        res.json(results);
+       // console.log(results);
+    });
 }
 
 function show(req, res) {
@@ -143,11 +136,11 @@ function modify(req, res) {
     //iterazione su ogni campo editabile
     propEditabili.forEach((prop) => {
 
-      // se il campo è presenta nel body della richiesta
-        if(req.body[prop] !== undefined) {
-         //aggiorno la proprietà 
-         //equivale a es post.title = req.body.title    
-        post[prop] = req.body[prop];
+        // se il campo è presenta nel body della richiesta
+        if (req.body[prop] !== undefined) {
+            //aggiorno la proprietà 
+            //equivale a es post.title = req.body.title    
+            post[prop] = req.body[prop];
         }
     })
     // req.body.title ? post.title = req.body.title : post.title = post.title;
